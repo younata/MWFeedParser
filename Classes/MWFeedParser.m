@@ -109,6 +109,13 @@
     return self;
 }
 
+- (id)initWithString:(NSString *)string {
+    if (self = [self init]) {
+        userSuppliedData = [string dataUsingEncoding:NSUTF8StringEncoding];
+    }
+    return self;
+}
+
 #pragma mark -
 #pragma mark Parsing
 
@@ -129,6 +136,13 @@
 	hasEncounteredItems = NO;
 }
 
+- (BOOL)parseString:(NSString *)string {
+    if (string == nil) {
+        [self parse];
+    }
+    [self startParsingData:[string dataUsingEncoding:NSUTF8StringEncoding] textEncodingName:@"utf-8"]; // Process
+}
+
 // Parse using URL for backwards compatibility
 - (BOOL)parse {
 
@@ -136,8 +150,8 @@
 	[self reset];
 	
 	// Perform checks before parsing
-	if (!url || !delegate) { [self parsingFailedWithErrorCode:MWErrorCodeNotInitiated 
-											   andDescription:@"Delegate or URL not specified"]; return NO; }
+	if (!url || !delegate || !userSuppliedData) { [self parsingFailedWithErrorCode:MWErrorCodeNotInitiated 
+											   andDescription:@"Delegate, URL, or Data not specified"]; return NO; }
 	if (parsing) { [self parsingFailedWithErrorCode:MWErrorCodeGeneral 
 									 andDescription:@"Cannot start parsing as parsing is already in progress"]; return NO; }
 	
@@ -150,38 +164,42 @@
 	
 	// Start
 	BOOL success = YES;
-    
-	// Debug Log
-	MWLog(@"MWFeedParser: Connecting & downloading feed data");
-	
-	// Connection
-	if (connectionType == ConnectionTypeAsynchronously) {
-		
-		// Async
-		urlConnection = [[NSURLConnection alloc] initWithRequest:self.request delegate:self];
-		if (urlConnection) {
-			asyncData = [[NSMutableData alloc] init];// Create data
-		} else {
-			[self parsingFailedWithErrorCode:MWErrorCodeConnectionFailed 
-							  andDescription:[NSString stringWithFormat:@"Asynchronous connection failed to URL: %@", url]];
-			success = NO;
-		}
-		
-	} else {
-	
-		// Sync
-		NSURLResponse *response = nil;
-		NSError *error = nil;
-		NSData *data = [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&error];
-		if (data && !error) {
-			[self startParsingData:data textEncodingName:[response textEncodingName]]; // Process
-		} else {
-			[self parsingFailedWithErrorCode:MWErrorCodeConnectionFailed 
-							  andDescription:[NSString stringWithFormat:@"Synchronous connection failed to URL: %@", url]];
-			success = NO;
-		}
-		
-	}
+
+    if (url != nil) {
+	    // Debug Log
+	    MWLog(@"MWFeedParser: Connecting & downloading feed data");
+    	
+	    // Connection
+	    if (connectionType == ConnectionTypeAsynchronously) {
+	    	
+		    // Async
+		    urlConnection = [[NSURLConnection alloc] initWithRequest:self.request delegate:self];
+		    if (urlConnection) {
+			    asyncData = [[NSMutableData alloc] init];// Create data
+		    } else {
+			    [self parsingFailedWithErrorCode:MWErrorCodeConnectionFailed 
+							    andDescription:[NSString stringWithFormat:@"Asynchronous connection failed to URL: %@", url]];
+			    success = NO;
+		    }
+	    	
+	    } else {
+    	
+		    // Sync
+		    NSURLResponse *response = nil;
+		    NSError *error = nil;
+		    NSData *data = [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&error];
+		    if (data && !error) {
+			    [self startParsingData:data textEncodingName:[response textEncodingName]]; // Process
+		    } else {
+			    [self parsingFailedWithErrorCode:MWErrorCodeConnectionFailed 
+							    andDescription:[NSString stringWithFormat:@"Synchronous connection failed to URL: %@", url]];
+			    success = NO;
+		    }
+	    	
+	    }
+    } else {
+        [self startParsingData:userSuppliedData textEncodingName:@"utf-8"];
+    }
 	
 	// Cleanup & return
 	return success;

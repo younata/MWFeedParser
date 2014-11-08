@@ -104,6 +104,7 @@ typedef enum { FeedTypeUnknown, FeedTypeRSS, FeedTypeRSS1, FeedTypeAtom } FeedTy
 	MWFeedItem *item;
 	MWFeedInfo *info;
 	
+    NSData *userSuppliedData;
 }
 
 #pragma mark Public Properties
