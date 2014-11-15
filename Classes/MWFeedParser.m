@@ -136,13 +136,6 @@
 	hasEncounteredItems = NO;
 }
 
-- (BOOL)parseString:(NSString *)string {
-    if (string == nil) {
-        [self parse];
-    }
-    [self startParsingData:[string dataUsingEncoding:NSUTF8StringEncoding] textEncodingName:@"utf-8"]; // Process
-}
-
 // Parse using URL for backwards compatibility
 - (BOOL)parse {
 
