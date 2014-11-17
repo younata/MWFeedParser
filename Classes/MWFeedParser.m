@@ -143,7 +143,7 @@
 	[self reset];
 	
 	// Perform checks before parsing
-	if (!url || !delegate || !userSuppliedData) { [self parsingFailedWithErrorCode:MWErrorCodeNotInitiated 
+	if (!delegate || (!url && !userSuppliedData)) { [self parsingFailedWithErrorCode:MWErrorCodeNotInitiated
 											   andDescription:@"Delegate, URL, or Data not specified"]; return NO; }
 	if (parsing) { [self parsingFailedWithErrorCode:MWErrorCodeGeneral 
 									 andDescription:@"Cannot start parsing as parsing is already in progress"]; return NO; }
