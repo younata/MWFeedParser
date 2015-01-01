@@ -37,6 +37,7 @@
 @property (nonatomic, strong) NSURLConnection *urlConnection;
 @property (nonatomic, strong) NSMutableData *asyncData;
 @property (nonatomic, strong) NSString *asyncTextEncodingName;
+@property (nonatomic, strong) NSOperationQueue *urlQueue;
 
 // Parsing Properties
 @property (nonatomic, strong) NSXMLParser *feedParser;

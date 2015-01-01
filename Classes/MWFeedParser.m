@@ -74,7 +74,7 @@
         [dateFormatterRFC3339 setLocale:en_US_POSIX];
         [dateFormatterRFC822 setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
         [dateFormatterRFC3339 setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
-		
+        
 	}
 	return self;
 }
@@ -166,9 +166,14 @@
 	    if (connectionType == ConnectionTypeAsynchronously) {
 	    	
 		    // Async
-		    urlConnection = [[NSURLConnection alloc] initWithRequest:self.request delegate:self];
+		    urlConnection = [[NSURLConnection alloc] initWithRequest:self.request delegate:self startImmediately:NO];
 		    if (urlConnection) {
+                if (self.urlQueue == nil) {
+                    self.urlQueue = [[NSOperationQueue alloc] init];
+                }
+                [urlConnection setDelegateQueue:self.urlQueue];
 			    asyncData = [[NSMutableData alloc] init];// Create data
+                [urlConnection start];
 		    } else {
 			    [self parsingFailedWithErrorCode:MWErrorCodeConnectionFailed 
 							    andDescription:[NSString stringWithFormat:@"Asynchronous connection failed to URL: %@", url]];
